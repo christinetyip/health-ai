@@ -1,0 +1,572 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Body Compass</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+
+    :root {
+        --fabric-base: #C9AB8D;
+        --fabric-light: #D5B99D;
+        --fabric-dark: #B59577;
+        --thread-dark: #5C261A;
+        --thread-med: #8B4330;
+        --thread-light: #AD5A43;
+        --thread-faded: rgba(92, 38, 26, 0.6);
+        --seam: rgba(92, 38, 26, 0.15);
+        --seam-light: rgba(255, 255, 255, 0.2);
+        --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+        --font-sans: 'DM Sans', system-ui, sans-serif;
+        --color-deep: #4A2016;
+        --color-rem: #AD5A43;
+        --color-light: #D5B99D;
+        --color-awake: #F2E3D5;
+        --green: #5B7A5E;
+        --green-bg: rgba(91, 122, 94, 0.12);
+        --amber: #96712B;
+        --amber-bg: rgba(150, 113, 43, 0.12);
+        --rose: #8B3B3B;
+        --rose-bg: rgba(139, 59, 59, 0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+        background-color: var(--fabric-base);
+        color: var(--thread-dark);
+        font-family: var(--font-sans);
+        line-height: 1.5;
+        background-image:
+            linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px, 3px 3px, 3px 3px;
+        min-height: 100vh; overflow-x: hidden;
+    }
+    body::before {
+        content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none; z-index: 999; opacity: 0.35;
+        background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        mix-blend-mode: overlay;
+    }
+
+    .app { max-width: 600px; margin: 0 auto; padding: 20px 20px 90px; }
+    .stitched { text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.3), -0.5px -0.5px 0px rgba(0,0,0,0.1); }
+
+    header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 36px; padding-bottom: 14px;
+        border-bottom: 1px dashed var(--seam); box-shadow: 0 1px 0 var(--seam-light);
+    }
+    .date-stamp { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--thread-faded); }
+    .profile-icon { width: 22px; height: 22px; stroke: var(--thread-dark); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* --- HERO --- */
+    .hero { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 40px; }
+    .orb-container { width: 160px; height: 160px; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .orb { position: absolute; width: 100%; height: 100%; mix-blend-mode: multiply; opacity: 0.5; }
+    .orb-1 { background-color: var(--thread-med); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; animation: breathe 8s infinite ease-in-out alternate; animation-delay: -2s; }
+    .orb-2 { background-color: var(--thread-light); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; width: 85%; height: 85%; transform: rotate(45deg); animation: breathe 8s infinite ease-in-out alternate; }
+    @keyframes breathe {
+        0% { transform: scale(0.95) rotate(0deg); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        50% { transform: scale(1.05) rotate(10deg); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        100% { transform: scale(0.98) rotate(20deg); border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+    }
+    .readiness-label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--thread-faded); margin-bottom: 12px; }
+    .readiness-phrase { font-family: var(--font-serif); font-style: italic; font-weight: 400; font-size: 2.4rem; line-height: 1.1; color: var(--thread-dark); letter-spacing: -0.02em; }
+
+    /* --- METRICS ROW --- */
+    .metrics-row { display: flex; justify-content: space-between; margin-bottom: 28px; padding: 0 8px; }
+    .metric-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .metric-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; border-right: 1px dashed var(--seam); }
+    .metric-val { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 400; margin-bottom: 2px; }
+    .metric-unit { font-size: 0.85rem; font-style: italic; }
+    .metric-label { font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--thread-faded); }
+
+    /* --- ADVICE BLOCK --- */
+    .advice-block {
+        padding: 20px; margin-bottom: 32px;
+        background: var(--fabric-dark); border-radius: 12px;
+        box-shadow: inset 2px 2px 6px rgba(0,0,0,0.1), inset -2px -2px 6px rgba(255,255,255,0.15);
+    }
+    .advice-text { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.6; font-style: italic; }
+    .advice-text::before { content: "\201C"; font-size: 1.4rem; color: var(--thread-med); margin-right: 3px; line-height: 0; }
+
+    /* --- MIND-BODY GAP --- */
+    .gap-alert {
+        padding: 16px 18px; margin-bottom: 28px; border-radius: 10px;
+        background: var(--amber-bg); border-left: 3px solid var(--amber);
+    }
+    .gap-title { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--thread-dark); margin-bottom: 6px; }
+    .gap-text { font-size: 0.82rem; line-height: 1.6; color: var(--thread-dark); }
+
+    /* --- SECTION DIVIDER --- */
+    .section-sep { border: none; border-top: 1px dashed var(--seam); box-shadow: 0 1px 0 var(--seam-light); margin: 0 0 24px; }
+
+    /* --- CARD --- */
+    .card { background: var(--fabric-dark); border-radius: 12px; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+    .card-title { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--thread-faded); margin-bottom: 14px; }
+    .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 420px) { .card-row { grid-template-columns: 1fr; } }
+
+    /* --- SLEEP --- */
+    .sleep-times { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 0 10px; }
+    .sleep-time-block { text-align: center; }
+    .sleep-time-label { font-size: 0.6rem; color: var(--thread-faded); text-transform: uppercase; letter-spacing: 0.08em; }
+    .sleep-time-val { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 600; }
+    .sleep-arrow { color: var(--thread-faded); }
+    .sleep-total { text-align: center; margin-bottom: 14px; }
+    .sleep-total-val { font-family: var(--font-serif); font-size: 1rem; font-style: italic; }
+    .sleep-badge { display: inline-block; padding: 1px 10px; border-radius: 10px; font-size: 0.62rem; font-weight: 500; margin-left: 8px; }
+    .badge-good { background: var(--green-bg); color: var(--green); }
+    .badge-fair { background: var(--amber-bg); color: var(--amber); }
+
+    .sleep-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; gap: 2px; margin-bottom: 14px; }
+    .sleep-seg { display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 500; }
+    .seg-deep { background: var(--color-deep); color: var(--fabric-light); }
+    .seg-rem { background: var(--color-rem); color: white; }
+    .seg-light { background: var(--color-light); color: var(--thread-dark); }
+
+    .stage-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .stage { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+    .stage-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    .stage-name { width: 42px; }
+    .stage-val { font-weight: 500; width: 40px; }
+    .stage-pct { color: var(--thread-faded); width: 32px; }
+    .stage-bench { font-size: 0.62rem; color: var(--thread-faded); }
+    .stage-good { color: var(--green); }
+    .stage-above { color: var(--thread-med); }
+
+    .sleep-coach { padding: 14px; background: rgba(255,255,255,0.06); border-radius: 8px; }
+    .sleep-coach-text { font-family: var(--font-serif); font-size: 0.9rem; font-style: italic; line-height: 1.5; }
+
+    /* --- SLEEP TREND --- */
+    .trend-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 110px; position: relative; margin-bottom: 10px; }
+    .trend-ref { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--seam); }
+    .trend-ref-label { position: absolute; right: 0; top: -13px; font-size: 0.52rem; color: var(--thread-faded); }
+    .trend-day { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+    .trend-stack { display: flex; flex-direction: column; width: 20px; border-radius: 3px 3px 0 0; overflow: hidden; }
+    .trend-lbl { font-size: 0.58rem; color: var(--thread-faded); }
+    .trend-lbl-today { color: var(--thread-dark); font-weight: 500; }
+    .trend-footer { font-size: 0.68rem; color: var(--thread-faded); margin-top: 6px; }
+
+    /* --- DEPLETION RADAR --- */
+    .radar-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; }
+    .status-green { background: var(--green-bg); }
+    .status-yellow { background: var(--amber-bg); }
+    .status-red { background: var(--rose-bg); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-g { background: var(--green); } .dot-y { background: var(--amber); } .dot-r { background: var(--rose); }
+    .status-text { font-size: 0.75rem; }
+
+    .radar-group { font-size: 0.58rem; color: var(--thread-faded); text-transform: uppercase; letter-spacing: 0.1em; margin: 14px 0 8px; }
+    .radar-list { display: flex; flex-direction: column; gap: 0; }
+    .radar-item { display: flex; align-items: center; padding: 12px 0; border-top: 1px dashed var(--seam); box-shadow: inset 0 1px 0 var(--seam-light); }
+    .radar-item-icon { width: 20px; height: 20px; margin-right: 10px; flex-shrink: 0; }
+    .radar-item-icon svg { width: 100%; height: 100%; stroke: var(--thread-med); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .radar-item-info { flex: 1; }
+    .radar-item-name { font-family: var(--font-serif); font-size: 1rem; font-weight: 600; }
+    .radar-item-sub { font-size: 0.72rem; color: var(--thread-faded); }
+    .radar-item-right { display: flex; align-items: center; gap: 8px; }
+    .radar-item-val { font-family: var(--font-serif); font-size: 1.1rem; }
+    .radar-item-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .info-icon { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--seam); display: inline-flex; align-items: center; justify-content: center; font-size: 0.55rem; color: var(--thread-faded); cursor: pointer; margin-left: 4px; vertical-align: middle; }
+
+    .radar-explain { font-size: 0.75rem; color: var(--thread-faded); font-style: italic; margin-top: 14px; line-height: 1.5; font-family: var(--font-serif); }
+
+    /* --- EMOTIONAL WEATHER --- */
+    .weather-strip { display: flex; gap: 5px; margin-bottom: 14px; overflow-x: auto; }
+    .weather-day { flex: 1; min-width: 60px; text-align: center; padding: 10px 4px; border-radius: 8px; background: rgba(255,255,255,0.06); }
+    .weather-day-lbl { font-size: 0.58rem; color: var(--thread-faded); margin-bottom: 3px; }
+    .weather-word { font-family: var(--font-serif); font-size: 0.82rem; font-style: italic; min-height: 18px; }
+    .w-calm { color: var(--green); } .w-focused { color: #4A7A8C; } .w-tired { color: var(--thread-faded); }
+    .w-anxious { color: var(--amber); } .w-blank { color: var(--thread-faded); font-size: 0.68rem; font-style: normal; }
+
+    .clarity-row { margin-bottom: 12px; }
+    .clarity-label { font-size: 0.68rem; color: var(--thread-faded); margin-bottom: 5px; }
+    .clarity-bar { height: 5px; border-radius: 3px; display: flex; overflow: hidden; gap: 1px; background: rgba(255,255,255,0.06); }
+    .cl-named { background: var(--thread-med); border-radius: 3px 0 0 3px; }
+    .cl-unknown { background: var(--fabric-light); }
+    .cl-missing { background: transparent; }
+
+    .dr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .dr-title { font-size: 0.58rem; color: var(--thread-faded); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+    .dr-text { font-family: var(--font-serif); font-size: 0.82rem; font-style: italic; line-height: 1.5; }
+
+    .weather-coach { padding: 12px; background: rgba(255,255,255,0.06); border-radius: 8px; }
+    .weather-coach-text { font-family: var(--font-serif); font-size: 0.88rem; font-style: italic; line-height: 1.5; }
+
+    /* --- STRESS --- */
+    .stress-chart { height: 90px; position: relative; margin-bottom: 12px; border-radius: 8px; overflow: hidden; }
+    .stress-zones { position: absolute; inset: 0; display: flex; flex-direction: column; }
+    .sz { flex: 1; }
+    .sz-high { background: rgba(139,59,59,0.06); }
+    .sz-mod { background: rgba(150,113,43,0.04); }
+    .sz-low { background: rgba(91,122,94,0.04); }
+    .stress-svg { position: relative; z-index: 2; width: 100%; height: 100%; }
+    .stress-line { fill: none; stroke: var(--thread-med); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .stress-area { fill: url(#stressGrad); opacity: 0.25; }
+    .stress-stats { display: flex; justify-content: space-around; text-align: center; margin-bottom: 8px; }
+    .stress-stat-val { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; }
+    .stress-stat-lbl { font-size: 0.58rem; color: var(--thread-faded); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stress-zones-legend { display: flex; gap: 12px; justify-content: center; font-size: 0.6rem; color: var(--thread-faded); margin-bottom: 10px; }
+    .szl-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 3px; vertical-align: middle; }
+    .stress-coach { padding: 12px; background: rgba(255,255,255,0.06); border-radius: 8px; }
+    .stress-coach-text { font-family: var(--font-serif); font-size: 0.88rem; font-style: italic; line-height: 1.5; }
+
+    /* --- MOVEMENT --- */
+    .move-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .move-ring { width: 70px; height: 70px; position: relative; flex-shrink: 0; }
+    .move-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .move-ring .bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 5; }
+    .move-ring .fill { fill: none; stroke: var(--thread-med); stroke-width: 5; stroke-linecap: round; }
+    .move-count { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .move-num { font-family: var(--font-serif); font-size: 1rem; font-weight: 600; line-height: 1; }
+    .move-lbl { font-size: 0.5rem; color: var(--thread-faded); }
+    .move-info { flex: 1; }
+    .move-target { font-size: 0.72rem; color: var(--thread-faded); margin-bottom: 6px; }
+    .move-hours { display: flex; gap: 2px; flex-wrap: wrap; }
+    .hr-bar { width: 12px; min-width: 8px; flex: 1; max-width: 14px; height: 18px; border-radius: 2px; background: rgba(255,255,255,0.08); }
+    .hr-bar-on { background: var(--thread-med); }
+    .hr-bar-lo { background: rgba(139,67,48,0.25); }
+    .move-time-labels { font-size: 0.55rem; color: var(--thread-faded); margin-top: 3px; }
+    .move-alert { padding: 10px 14px; border-radius: 8px; background: var(--amber-bg); border-left: 3px solid var(--amber); font-size: 0.75rem; margin-bottom: 8px; }
+    .move-bench { font-size: 0.62rem; color: var(--thread-faded); margin-top: 8px; }
+
+    /* --- ACTIVITY / SWIM --- */
+    .activity-week { display: flex; flex-direction: column; gap: 0; }
+    .activity-row { display: flex; align-items: center; padding: 10px 0; border-top: 1px dashed var(--seam); }
+    .activity-day { width: 32px; font-size: 0.68rem; color: var(--thread-faded); }
+    .activity-type { flex: 1; font-family: var(--font-serif); font-size: 0.9rem; }
+    .activity-dur { font-size: 0.75rem; color: var(--thread-faded); }
+    .activity-none { font-size: 0.75rem; color: var(--thread-faded); font-style: italic; }
+
+    /* --- EVENING ENERGY --- */
+    .evening-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+    .evening-day { width: 28px; font-size: 0.68rem; color: var(--thread-faded); }
+    .evening-track { flex: 1; height: 12px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .evening-fill { height: 100%; border-radius: 6px; }
+    .ef-good { background: var(--green); }
+    .ef-mod { background: linear-gradient(90deg, var(--green), var(--amber)); }
+    .ef-dep { background: linear-gradient(90deg, var(--amber), var(--rose)); }
+    .ef-ok { background: linear-gradient(90deg, var(--green), rgba(150,113,43,0.5)); }
+    .evening-note { font-size: 0.65rem; color: var(--thread-faded); width: 80px; text-align: right; }
+    .evening-pattern { font-family: var(--font-serif); font-size: 0.92rem; font-style: italic; line-height: 1.5; color: var(--thread-dark); margin-top: 12px; }
+
+    /* --- WEEKLY INSIGHT --- */
+    .insight-quote { font-family: var(--font-serif); font-size: 1.05rem; font-style: italic; line-height: 1.6; margin-bottom: 18px; }
+    .insight-quote::before { content: "\201C"; font-size: 1.3rem; color: var(--thread-med); margin-right: 3px; line-height: 0; }
+    .trends-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .trend-row { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+    .trend-name { width: 85px; color: var(--thread-faded); font-size: 0.65rem; }
+    .trend-spark { flex: 1; height: 18px; }
+    .trend-spark svg { width: 100%; height: 100%; }
+    .spark-line { fill: none; stroke: var(--thread-med); stroke-width: 1.5; stroke-linecap: round; }
+    .trend-delta { width: 75px; text-align: right; font-size: 0.7rem; }
+    .t-up { color: var(--green); } .t-down { color: var(--rose); }
+    .tonight-tip { margin-top: 14px; padding: 12px; background: rgba(255,255,255,0.06); border-radius: 8px; font-size: 0.72rem; color: var(--thread-faded); }
+
+    /* --- NAV --- */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; width: 100%; height: 64px;
+        background: var(--fabric-base); border-top: 1px dashed var(--seam);
+        display: flex; justify-content: space-around; align-items: center;
+        padding-bottom: env(safe-area-inset-bottom); z-index: 100;
+        background-image: linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; opacity: 0.45; cursor: pointer; text-decoration: none; }
+    .nav-item.active { opacity: 1; }
+    .nav-icon { width: 22px; height: 22px; }
+    .nav-icon svg { width: 100%; height: 100%; stroke: var(--thread-dark); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-label { font-size: 0.6rem; color: var(--thread-dark); letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <div class="date-stamp">Thursday, Mar 27</div>
+        <svg class="profile-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="orb-container">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+        </div>
+        <div class="readiness-label">Today's Pulse</div>
+        <h1 class="readiness-phrase stitched">Pace yourself today.</h1>
+    </section>
+
+    <!-- METRICS -->
+    <div class="metrics-row">
+        <div class="metric-item">
+            <div class="metric-val stitched">6<span class="metric-unit">h</span> 43<span class="metric-unit">m</span></div>
+            <div class="metric-label">Sleep</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-val stitched">3<span class="metric-unit">/5</span></div>
+            <div class="metric-label">Energy</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-val stitched">-1.3<span class="metric-unit">h</span></div>
+            <div class="metric-label">Sleep Debt</div>
+        </div>
+    </div>
+
+    <!-- ADVICE -->
+    <div class="advice-block">
+        <p class="advice-text">Your deep sleep was excellent but total time was short. You feel tired and your body agrees. The learning energy is real but it's masking depletion &mdash; protect tonight's sleep.</p>
+    </div>
+
+    <!-- MIND-BODY GAP -->
+    <div class="gap-alert">
+        <div class="gap-title">Mind-Body Gap</div>
+        <div class="gap-text">You rated energy 3/5 and spent the day building &mdash; but sleep was 40min below what you need and you feel "tired." Your recharge (learning) is masking the depletion. The to-do list pressure + kids after dinner is real drain. Tonight's sleep matters.</div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- SLEEP -->
+    <div class="card-row">
+        <div class="card">
+            <div class="card-title">Last Night's Sleep</div>
+            <div class="sleep-times">
+                <div class="sleep-time-block"><div class="sleep-time-label">Bed</div><div class="sleep-time-val">00:53</div></div>
+                <div class="sleep-arrow">&rarr;</div>
+                <div class="sleep-time-block"><div class="sleep-time-label">Wake</div><div class="sleep-time-val">07:36</div></div>
+            </div>
+            <div class="sleep-total"><span class="sleep-total-val">6h 43min</span><span class="sleep-badge badge-fair">Fair</span></div>
+
+            <div class="sleep-bar">
+                <div class="sleep-seg seg-deep" style="flex:2.0">2.0h</div>
+                <div class="sleep-seg seg-light" style="flex:2.9">2.9h</div>
+                <div class="sleep-seg seg-rem" style="flex:1.8">1.8h</div>
+            </div>
+
+            <div class="stage-list">
+                <div class="stage"><div class="stage-dot" style="background:var(--color-deep)"></div><div class="stage-name">Deep</div><div class="stage-val">2.0h</div><div class="stage-pct">30%</div><div class="stage-bench stage-above">&#x25B2; 15-25%</div></div>
+                <div class="stage"><div class="stage-dot" style="background:var(--color-light)"></div><div class="stage-name">Light</div><div class="stage-val">2.9h</div><div class="stage-pct">43%</div><div class="stage-bench stage-good">&#x2713; 40-60%</div></div>
+                <div class="stage"><div class="stage-dot" style="background:var(--color-rem)"></div><div class="stage-name">REM</div><div class="stage-val">1.8h</div><div class="stage-pct">27%</div><div class="stage-bench stage-above">&#x25B2; 20-25%</div></div>
+                <div class="stage"><div class="stage-dot" style="background:var(--color-awake)"></div><div class="stage-name">Awake</div><div class="stage-val">0m</div><div class="stage-pct"></div><div class="stage-bench stage-good">&#x2713; &lt;30m</div></div>
+            </div>
+
+            <div class="sleep-coach">
+                <div class="sleep-coach-text">Your sleep quality was good but duration was 17min below the 7h minimum. Deep sleep and REM were above benchmarks &mdash; your body recovered well in the time it had. Try getting to bed by midnight tonight to close the gap.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Sleep Trend &middot; 7 nights</div>
+            <div class="trend-bars">
+                <div class="trend-ref" style="bottom:68px;"><span class="trend-ref-label">7h min</span></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:16px;background:var(--color-rem)"></div><div style="height:24px;background:var(--color-light)"></div><div style="height:12px;background:var(--color-deep)"></div></div><div class="trend-lbl">F</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:22px;background:var(--color-rem)"></div><div style="height:32px;background:var(--color-light)"></div><div style="height:18px;background:var(--color-deep)"></div></div><div class="trend-lbl">S</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:18px;background:var(--color-rem)"></div><div style="height:28px;background:var(--color-light)"></div><div style="height:14px;background:var(--color-deep)"></div></div><div class="trend-lbl">S</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:14px;background:var(--color-rem)"></div><div style="height:20px;background:var(--color-light)"></div><div style="height:10px;background:var(--color-deep)"></div></div><div class="trend-lbl">M</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:20px;background:var(--color-rem)"></div><div style="height:30px;background:var(--color-light)"></div><div style="height:16px;background:var(--color-deep)"></div></div><div class="trend-lbl">T</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:16px;background:var(--color-rem)"></div><div style="height:22px;background:var(--color-light)"></div><div style="height:12px;background:var(--color-deep)"></div></div><div class="trend-lbl">W</div></div>
+                <div class="trend-day"><div class="trend-stack"><div style="height:18px;background:var(--color-rem)"></div><div style="height:28px;background:var(--color-light)"></div><div style="height:20px;background:var(--color-deep)"></div></div><div class="trend-lbl-today">T*</div></div>
+            </div>
+            <div class="trend-footer">Bedtime consistency: 68% &middot; varies ~55min</div>
+        </div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- DEPLETION RADAR -->
+    <div class="card">
+        <div class="card-title">Depletion Radar</div>
+        <div class="radar-status status-green"><div class="status-dot dot-g"></div><div class="status-text">All stable &mdash; no collapse indicators</div></div>
+
+        <div class="radar-group">Body signals</div>
+        <div class="radar-list">
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">Sleep <span class="info-icon">i</span></div><div class="radar-item-sub">&rarr; stable</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">6.7h</div><div class="radar-item-dot dot-g"></div></div>
+            </div>
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke-width="0" fill="none"/><path d="M18 12a6 6 0 0 1-12 0"/><circle cx="12" cy="12" r="9"/><path d="M9 9h.01M15 9h.01"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">Stress <span class="info-icon">i</span></div><div class="radar-item-sub">&rarr; stable</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">low</div><div class="radar-item-dot dot-g"></div></div>
+            </div>
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="none"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">Movement <span class="info-icon">i</span></div><div class="radar-item-sub">&darr; low</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">258</div><div class="radar-item-dot dot-y"></div></div>
+            </div>
+        </div>
+
+        <div class="radar-group">Mind signals</div>
+        <div class="radar-list">
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">Energy <span class="info-icon">i</span></div><div class="radar-item-sub">&rarr; stable &middot; from check-in</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">3/5</div><div class="radar-item-dot dot-g"></div></div>
+            </div>
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">People <span class="info-icon">i</span></div><div class="radar-item-sub">&rarr; stable &middot; from check-in</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">neutral</div><div class="radar-item-dot dot-g"></div></div>
+            </div>
+            <div class="radar-item">
+                <div class="radar-item-icon"><svg viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+                <div class="radar-item-info"><div class="radar-item-name">Middle gear <span class="info-icon" title="Can you take it lighter today? Tracks whether you have a gear between 100% and 0%. Consistently saying 'no' reveals a belief pattern, not a scheduling problem.">i</span></div><div class="radar-item-sub">&rarr; available &middot; from check-in</div></div>
+                <div class="radar-item-right"><div class="radar-item-val">yes</div><div class="radar-item-dot dot-g"></div></div>
+            </div>
+        </div>
+
+        <div class="radar-explain" style="color: var(--thread-dark);">"All stable &mdash; but <strong>watch your movement</strong>. A second day this low and this shifts to yellow. A short walk would reset it."</div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- EMOTIONAL WEATHER -->
+    <div class="card">
+        <div class="card-title">Emotional Weather &middot; 7 days</div>
+        <div class="weather-strip">
+            <div class="weather-day"><div class="weather-day-lbl">Mon</div><div class="weather-word w-focused">focused</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Tue</div><div class="weather-word w-tired">tired</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Wed</div><div class="weather-word w-blank">?</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Thu</div><div class="weather-word w-tired">tired</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Fri</div><div class="weather-word w-blank">&mdash;</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Sat</div><div class="weather-word w-blank">&mdash;</div></div>
+            <div class="weather-day"><div class="weather-day-lbl">Sun</div><div class="weather-word w-blank">&mdash;</div></div>
+        </div>
+        <div class="clarity-row">
+            <div class="clarity-label">Emotional clarity: 60% named &middot; 20% unnamed &middot; 20% no check-in</div>
+            <div class="clarity-bar"><div class="cl-named" style="flex:60"></div><div class="cl-unknown" style="flex:20"></div><div class="cl-missing" style="flex:20"></div></div>
+        </div>
+        <div class="dr-grid">
+            <div><div class="dr-title">Drains</div><div class="dr-text">huge to-do list, kids fighting after dinner, decision fatigue</div></div>
+            <div><div class="dr-title">Recharges</div><div class="dr-text">building &amp; learning, computer science, networking</div></div>
+        </div>
+        <div class="weather-coach">
+            <div class="weather-coach-text">You've felt "tired" twice this week. Both times, the night before had a bedtime past midnight and your drain was to-do list pressure. The pattern: when unfinished tasks pile up in the evening, you stay up later trying to clear them, and wake up depleted. The to-do list isn't the problem &mdash; the late response to it is.</div>
+        </div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- STRESS & RECOVERY -->
+    <div class="card">
+        <div class="card-title">Stress &amp; Recovery &middot; Today</div>
+        <div class="stress-chart">
+            <div class="stress-zones"><div class="sz sz-high"></div><div class="sz sz-mod"></div><div class="sz sz-low"></div></div>
+            <svg class="stress-svg" viewBox="0 0 400 90" preserveAspectRatio="none">
+                <defs><linearGradient id="stressGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--thread-med)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--thread-med)" stop-opacity="0"/></linearGradient></defs>
+                <polyline class="stress-area" points="0,60 30,55 60,50 90,52 120,45 150,40 180,35 210,42 240,48 270,55 300,50 330,45 360,50 400,55 400,90 0,90"/>
+                <polyline class="stress-line" points="0,60 30,55 60,50 90,52 120,45 150,40 180,35 210,42 240,48 270,55 300,50 330,45 360,50 400,55"/>
+            </svg>
+        </div>
+        <div class="stress-stats">
+            <div><div class="stress-stat-val">32</div><div class="stress-stat-lbl">Average</div></div>
+            <div><div class="stress-stat-val">58</div><div class="stress-stat-lbl">Peak</div></div>
+            <div><div class="stress-stat-val">14:30</div><div class="stress-stat-lbl">Peak time</div></div>
+        </div>
+        <div class="stress-zones-legend">
+            <span><span class="szl-dot" style="background:var(--green)"></span>Relaxed 0-29</span>
+            <span><span class="szl-dot" style="background:var(--amber)"></span>Moderate 30-59</span>
+            <span><span class="szl-dot" style="background:var(--rose)"></span>High 60+</span>
+        </div>
+        <div class="stress-coach">
+            <div class="stress-coach-text">Your stress peaked in the early afternoon. This often correlates with decision fatigue from your to-do list. A 5-minute break or walk between tasks can reset the stress response.</div>
+        </div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- MOVEMENT + ACTIVITY -->
+    <div class="card">
+        <div class="card-title">Movement</div>
+        <div class="move-top">
+            <div class="move-ring">
+                <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="40"/><circle class="fill" cx="50" cy="50" r="40" stroke-dasharray="251" stroke-dashoffset="241"/></svg>
+                <div class="move-count"><div class="move-num">258</div><div class="move-lbl">steps</div></div>
+            </div>
+            <div class="move-info">
+                <div class="move-target">Target: 6,000 steps</div>
+                <div class="move-hours">
+                    <div class="hr-bar"></div><div class="hr-bar"></div><div class="hr-bar"></div><div class="hr-bar"></div><div class="hr-bar"></div><div class="hr-bar"></div>
+                    <div class="hr-bar hr-bar-on"></div><div class="hr-bar hr-bar-on"></div><div class="hr-bar hr-bar-lo"></div>
+                    <div class="hr-bar"></div><div class="hr-bar"></div><div class="hr-bar"></div>
+                    <div class="hr-bar hr-bar-lo"></div><div class="hr-bar hr-bar-lo"></div><div class="hr-bar"></div><div class="hr-bar"></div>
+                </div>
+                <div class="move-time-labels">06 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18 &nbsp;&nbsp;&nbsp; 22</div>
+            </div>
+        </div>
+        <div class="move-alert">Your body wants to move &mdash; 3 hours since last activity.</div>
+        <div class="move-bench">Healthy range: 5,000&ndash;8,000 steps/day</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Activity &middot; This week</div>
+        <div class="activity-week">
+            <div class="activity-row"><div class="activity-day">Mon</div><div class="activity-type">Swimming</div><div class="activity-dur">35 min</div></div>
+            <div class="activity-row"><div class="activity-day">Tue</div><div class="activity-none">Rest day</div><div class="activity-dur"></div></div>
+            <div class="activity-row"><div class="activity-day">Wed</div><div class="activity-none">Rest day</div><div class="activity-dur"></div></div>
+            <div class="activity-row"><div class="activity-day">Thu</div><div class="activity-none">No activity yet</div><div class="activity-dur"></div></div>
+        </div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- EVENING ENERGY -->
+    <div class="card">
+        <div class="card-title">Evening Energy &middot; 18:00&ndash;21:00</div>
+        <div style="font-family:var(--font-serif); font-size:0.88rem; font-style:italic; color:var(--thread-faded); margin-bottom:14px;">"Are you present or running on empty?"</div>
+        <div class="evening-row"><div class="evening-day">Mon</div><div class="evening-track"><div class="evening-fill ef-mod" style="width:65%"></div></div><div class="evening-note">moderate</div></div>
+        <div class="evening-row"><div class="evening-day">Tue</div><div class="evening-track"><div class="evening-fill ef-good" style="width:88%"></div></div><div class="evening-note">good</div></div>
+        <div class="evening-row"><div class="evening-day">Wed</div><div class="evening-track"><div class="evening-fill ef-dep" style="width:32%"></div></div><div class="evening-note">depleted</div></div>
+        <div class="evening-row"><div class="evening-day">Thu</div><div class="evening-track"><div class="evening-fill ef-ok" style="width:52%"></div></div><div class="evening-note">today</div></div>
+        <div class="evening-row"><div class="evening-day" style="opacity:0.3">Fri</div><div class="evening-track"></div><div class="evening-note" style="opacity:0.3">&mdash;</div></div>
+        <div class="evening-pattern">"Wednesdays are consistently your hardest evening. Correlates with Tuesday late bedtime and midweek stress accumulation."</div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- WEEKLY INSIGHT -->
+    <div class="card">
+        <div class="card-title">Weekly Insight &middot; Week 13</div>
+        <div class="insight-quote">When you name your feeling in the morning check-in, your evening energy is 0.8 points higher on average.</div>
+        <div class="trends-list">
+            <div class="trend-row"><div class="trend-name">Avg sleep</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,14 15,12 30,10 45,11 60,8 75,7 100,5"/></svg></div><div class="trend-delta t-up">6.8h &#x25B2;0.4</div></div>
+            <div class="trend-row"><div class="trend-name">Energy</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,15 15,14 30,12 45,13 60,10 75,8 100,7"/></svg></div><div class="trend-delta t-up">3.2 &#x25B2;14%</div></div>
+            <div class="trend-row"><div class="trend-name">Stress</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,5 15,6 30,8 45,7 60,10 75,12 100,14"/></svg></div><div class="trend-delta t-up">35 &#x25BC;15%</div></div>
+            <div class="trend-row"><div class="trend-name">Deep sleep</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,16 15,14 30,12 45,10 60,8 75,6 100,4"/></svg></div><div class="trend-delta t-up">30% &#x25B2;36%</div></div>
+            <div class="trend-row"><div class="trend-name">Wellness</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,14 15,13 30,11 45,12 60,9 75,8 100,6"/></svg></div><div class="trend-delta t-up">3.4 &#x25B2;21%</div></div>
+            <div class="trend-row"><div class="trend-name">Clarity</div><div class="trend-spark"><svg viewBox="0 0 100 20"><polyline class="spark-line" points="0,16 15,15 30,13 45,12 60,10 75,7 100,5"/></svg></div><div class="trend-delta t-up">60% &#x25B2;50%</div></div>
+        </div>
+        <div class="tonight-tip">Tonight for 7h sleep: bed by 00:00 &middot; Next check-in: tomorrow morning</div>
+    </div>
+
+    <div style="height:16px"></div>
+</div>
+
+<!-- NAV -->
+<nav class="bottom-nav">
+    <a class="nav-item active">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
+        <div class="nav-label">Today</div>
+    </a>
+    <a class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-5 5"/></svg></div>
+        <div class="nav-label">Trends</div>
+    </a>
+    <a class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div class="nav-label">Insights</div>
+    </a>
+    <a class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Settings</div>
+    </a>
+</nav>
+
+</body>
+</html>

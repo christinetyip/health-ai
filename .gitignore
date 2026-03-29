@@ -1,0 +1,22 @@
+# Database files
+*.db
+
+# Docker build artifacts
+*.tar
+
+# Files containing API keys
+mcp-server/deploy.sh
+mcp-server/.openrouter-key
+mcp-server/.kimi-key
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+
+# Temp files
+dashboard-data.json
+
+# Claude project memory (local only)
+.claude/

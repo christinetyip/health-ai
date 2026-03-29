@@ -1,0 +1,367 @@
+<html lang="en" vid="0"><head vid="1">
+<meta charset="UTF-8" vid="2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+<title vid="4">Prairie Health - Insights</title>
+<style vid="5">
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+
+    :root {
+        --fabric-base: #C9AB8D;
+        --fabric-light: #D5B99D;
+        --fabric-dark: #B59577;
+        --thread-dark: #5C261A;   
+        --thread-med: #8B4330;    
+        --thread-light: #AD5A43;  
+        --thread-faded: rgba(92, 38, 26, 0.6);
+        --seam: rgba(92, 38, 26, 0.15); 
+        --seam-light: rgba(255, 255, 255, 0.2);
+        --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+        --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: var(--fabric-base);
+        color: var(--thread-dark);
+        font-family: var(--font-sans);
+        line-height: 1.5;
+        background-image: 
+            linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px, 3px 3px, 3px 3px;
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none;
+        z-index: 999;
+        opacity: 0.4;
+        background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        mix-blend-mode: overlay;
+    }
+
+    .app-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px 20px 100px;
+    }
+
+    .stitched-text {
+        text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.3), -0.5px -0.5px 0px rgba(0,0,0,0.1);
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+        border-bottom: 1px dashed var(--seam);
+        box-shadow: 0 1px 0 var(--seam-light); 
+    }
+
+    .header-title {
+        font-family: var(--font-serif);
+        font-size: 2.2rem;
+        font-weight: 400;
+        font-style: italic;
+        color: var(--thread-dark);
+    }
+
+    .search-icon {
+        padding-bottom: 8px;
+    }
+
+    .journal-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .insight-card {
+        padding: 28px 0;
+        border-bottom: 1px dashed var(--seam);
+        box-shadow: 0 1px 0 var(--seam-light);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .insight-card:last-child {
+        border-bottom: none;
+        box-shadow: none;
+    }
+
+    .insight-meta {
+        font-family: var(--font-sans);
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--thread-faded);
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .insight-content-row {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .insight-text-group {
+        flex: 1;
+    }
+
+    .insight-title {
+        font-family: var(--font-serif);
+        font-size: 1.4rem;
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--thread-dark);
+        margin-bottom: 8px;
+    }
+
+    .insight-preview {
+        font-family: var(--font-serif);
+        font-size: 1.05rem;
+        font-style: italic;
+        line-height: 1.4;
+        color: var(--thread-med);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .thread-thumbnail {
+        width: 70px;
+        height: 70px;
+        background-color: var(--fabric-dark);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 
+            inset 1px 1px 3px rgba(0,0,0,0.1),
+            inset -1px -1px 3px rgba(255,255,255,0.1);
+    }
+
+    .thread-path {
+        fill: none;
+        stroke: var(--thread-med);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0px 1px 0px rgba(255,255,255,0.2));
+    }
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-color: var(--fabric-base);
+        border-top: 1px dashed var(--seam);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+        z-index: 100;
+        background-image: 
+            linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px, 3px 3px, 3px 3px;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        opacity: 0.5;
+        text-decoration: none;
+    }
+
+    .nav-item.active {
+        opacity: 1;
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: var(--thread-dark);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .nav-label {
+        font-family: var(--font-sans);
+        font-size: 0.65rem;
+        color: var(--thread-dark);
+        letter-spacing: 0.05em;
+    }
+
+    .category-tag {
+        border: 1px solid var(--seam);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.6rem;
+    }
+
+</style>
+</head>
+<body vid="6">
+
+<div class="app-container" vid="7">
+    
+    <header vid="8">
+        <h1 class="header-title stitched-text" vid="9">Insights</h1>
+        <div class="search-icon" vid="10">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--thread-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="11">
+                <circle cx="11" cy="11" r="8" vid="12"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65" vid="13"></line>
+            </svg>
+        </div>
+    </header>
+
+    <div class="journal-list" vid="14">
+        
+        <a href="#" class="insight-card" vid="15">
+            <div class="insight-meta" vid="16">
+                <span vid="17">This Week • Oct 22-28</span>
+                <span class="category-tag" vid="18">Rest</span>
+            </div>
+            <div class="insight-content-row" vid="19">
+                <div class="insight-text-group" vid="20">
+                    <h2 class="insight-title" vid="21">The Rhythm of Recovery</h2>
+                    <p class="insight-preview" vid="22">Your sleep cycles have mirrored a slow tide this week. While depth was lacking, consistency is improving...</p>
+                </div>
+                <div class="thread-thumbnail" vid="23">
+                    <svg viewBox="0 0 50 50" vid="24">
+                        <path class="thread-path" d="M 5 35 Q 15 15, 25 35 T 45 15" vid="25"></path>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" class="insight-card" vid="26">
+            <div class="insight-meta" vid="27">
+                <span vid="28">Last Week • Oct 15-21</span>
+                <span class="category-tag" vid="29">Vitality</span>
+            </div>
+            <div class="insight-content-row" vid="30">
+                <div class="insight-text-group" vid="31">
+                    <h2 class="insight-title" vid="32">Elevated Morning Baselines</h2>
+                    <p class="insight-preview" vid="33">An upward trend in your resting heart rate suggests a lingering stressor. It might be time to prune your evening...</p>
+                </div>
+                <div class="thread-thumbnail" vid="34">
+                    <svg viewBox="0 0 50 50" vid="35">
+                        <path class="thread-path" style="stroke: var(--thread-light);" d="M 5 40 L 15 30 L 25 35 L 45 5" vid="36"></path>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" class="insight-card" vid="37">
+            <div class="insight-meta" vid="38">
+                <span vid="39">Oct 8-14</span>
+                <span class="category-tag" vid="40">Balance</span>
+            </div>
+            <div class="insight-content-row" vid="41">
+                <div class="insight-text-group" vid="42">
+                    <h2 class="insight-title" vid="43">Quiet Sunsets</h2>
+                    <p class="insight-preview" vid="44">When your screen time dropped by 20% last Tuesday, your deep sleep phase extended by nearly forty minutes...</p>
+                </div>
+                <div class="thread-thumbnail" vid="45">
+                    <svg viewBox="0 0 50 50" vid="46">
+                        <path class="thread-path" d="M 5 10 Q 25 45, 45 10" vid="47"></path>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" class="insight-card" vid="48">
+            <div class="insight-meta" vid="49">
+                <span vid="50">Oct 1-7</span>
+                <span class="category-tag" vid="51">Movement</span>
+            </div>
+            <div class="insight-content-row" vid="52">
+                <div class="insight-text-group" vid="53">
+                    <h2 class="insight-title" vid="54">Steady Increments</h2>
+                    <p class="insight-preview" vid="55">The gradual increase in your daily movement has begun to stabilize your mood scores. The slow path is working...</p>
+                </div>
+                <div class="thread-thumbnail" vid="56">
+                    <svg viewBox="0 0 50 50" vid="57">
+                        <path class="thread-path" d="M 5 45 L 12 40 L 20 38 L 30 30 L 45 28" vid="58"></path>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" class="insight-card" vid="59">
+            <div class="insight-meta" vid="60">
+                <span vid="61">Archive • September</span>
+                <span class="category-tag" vid="62">Sleep</span>
+            </div>
+            <div class="insight-content-row" vid="63">
+                <div class="insight-text-group" vid="64">
+                    <h2 class="insight-title" vid="65">September Moon Phases</h2>
+                    <p class="insight-preview" vid="66">Analyzing how the shifting light of the moon impacted your alertness during the autumn equinox...</p>
+                </div>
+                <div class="thread-thumbnail" vid="67">
+                    <svg viewBox="0 0 50 50" vid="68">
+                        <circle cx="25" cy="25" r="15" fill="none" stroke="var(--thread-med)" stroke-width="1" stroke-dasharray="2 2" vid="69"></circle>
+                        <path class="thread-path" d="M 10 25 Q 25 5, 40 25 T 10 25" vid="70"></path>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<nav class="bottom-nav" vid="71">
+    <a href="#" class="nav-item" vid="72">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="73">
+            <circle cx="12" cy="12" r="4" vid="74"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" vid="75"></path>
+        </svg>
+        <span class="nav-label" vid="76">Today</span>
+    </a>
+    <a href="#" class="nav-item" vid="77">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="78">
+            <path d="M3 3v18h18" vid="79"></path>
+            <path d="M18 9l-5 5-4-4-5 5" vid="80"></path>
+        </svg>
+        <span class="nav-label" vid="81">Trends</span>
+    </a>
+    <a href="#" class="nav-item active" vid="82">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="83">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" vid="84"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" vid="85"></path>
+        </svg>
+        <span class="nav-label" vid="86">Insights</span>
+    </a>
+</nav>
+
+</body></html>

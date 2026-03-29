@@ -1,0 +1,439 @@
+<html lang="en" vid="0"><head vid="1">
+<meta charset="UTF-8" vid="2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+<title vid="4">Prairie Health - Settings</title>
+<style vid="5">
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+
+    :root {
+        --fabric-base: #C9AB8D;
+        --fabric-light: #D5B99D;
+        --fabric-dark: #B59577;
+        --thread-dark: #5C261A;   
+        --thread-med: #8B4330;    
+        --thread-light: #AD5A43;  
+        --thread-faded: rgba(92, 38, 26, 0.6);
+        --seam: rgba(92, 38, 26, 0.15); 
+        --seam-light: rgba(255, 255, 255, 0.2);
+        --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+        --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: var(--fabric-base);
+        color: var(--thread-dark);
+        font-family: var(--font-sans);
+        line-height: 1.5;
+        background-image: 
+            linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px, 3px 3px, 3px 3px;
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none;
+        z-index: 999;
+        opacity: 0.4;
+        background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        mix-blend-mode: overlay;
+    }
+
+    .app-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px 20px 100px;
+    }
+
+    .stitched-text {
+        text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.3), -0.5px -0.5px 0px rgba(0,0,0,0.1);
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+        border-bottom: 1px dashed var(--seam);
+        box-shadow: 0 1px 0 var(--seam-light); 
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: var(--thread-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .profile-hero {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .avatar-container {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 16px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .avatar-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: var(--fabric-dark);
+        border-radius: 45% 55% 60% 40% / 50% 45% 55% 50%;
+        box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+        border: 1px dashed var(--thread-faded);
+    }
+
+    .avatar-icon {
+        width: 48px;
+        height: 48px;
+        stroke: var(--thread-med);
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-name {
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        font-style: italic;
+        color: var(--thread-dark);
+    }
+
+    .profile-sub {
+        font-family: var(--font-sans);
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--thread-faded);
+    }
+
+    .settings-group {
+        margin-bottom: 32px;
+    }
+
+    .group-label {
+        font-family: var(--font-sans);
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--thread-faded);
+        margin-bottom: 12px;
+        padding-left: 4px;
+    }
+
+    .settings-card {
+        background-color: var(--fabric-dark);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 
+            inset 1px 1px 3px rgba(0,0,0,0.05),
+            0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .settings-item {
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed var(--seam);
+    }
+
+    .settings-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .item-title {
+        font-family: var(--font-serif);
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--thread-dark);
+    }
+
+    .item-desc {
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        color: var(--thread-faded);
+    }
+
+    .toggle-switch {
+        width: 44px;
+        height: 24px;
+        background-color: var(--fabric-base);
+        border-radius: 12px;
+        position: relative;
+        border: 1px solid var(--seam);
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .toggle-switch.on {
+        background-color: var(--thread-med);
+    }
+
+    .toggle-handle {
+        width: 18px;
+        height: 18px;
+        background-color: var(--fabric-light);
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.on .toggle-handle {
+        transform: translateX(20px);
+        background-color: #fff;
+    }
+
+    .value-display {
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-style: italic;
+        color: var(--thread-med);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .value-display svg {
+        width: 12px;
+        height: 12px;
+        stroke: var(--thread-faded);
+    }
+
+    .device-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-sans);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #79a37d; 
+    }
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-color: var(--fabric-base);
+        border-top: 1px dashed var(--seam);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+        z-index: 100;
+        background-image: 
+            linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+        background-size: 4px 4px, 4px 4px, 3px 3px, 3px 3px;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        opacity: 0.5;
+        text-decoration: none;
+    }
+
+    .nav-item.active {
+        opacity: 1;
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: var(--thread-dark);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .nav-label {
+        font-family: var(--font-sans);
+        font-size: 0.65rem;
+        color: var(--thread-dark);
+        letter-spacing: 0.05em;
+    }
+</style>
+</head>
+<body vid="6">
+
+<div class="app-container" vid="7">
+    <header vid="8">
+        <a href="#" class="back-link" vid="9">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="10"><path d="M19 12H5M12 19l-7-7 7-7" vid="11"></path></svg>
+            Journal
+        </a>
+        <div class="profile-sub" vid="12">Settings</div>
+    </header>
+
+    <div class="profile-hero" vid="13">
+        <div class="avatar-container" vid="14">
+            <div class="avatar-bg" vid="15"></div>
+            <svg class="avatar-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vid="16">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" vid="17"></path>
+                <circle cx="12" cy="7" r="4" vid="18"></circle>
+            </svg>
+        </div>
+        <h1 class="profile-name stitched-text" vid="19">Eleanor Thorne</h1>
+        <p class="profile-sub" vid="20">Member since Autumn 2023</p>
+    </div>
+
+    <div class="settings-group" vid="21">
+        <div class="group-label" vid="22">Health Intentions</div>
+        <div class="settings-card" vid="23">
+            <div class="settings-item" vid="24">
+                <div class="item-info" vid="25">
+                    <div class="item-title" vid="26">Sleep Goal</div>
+                    <div class="item-desc" vid="27">Target nightly duration</div>
+                </div>
+                <div class="value-display" vid="28">
+                    8h 30m
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" vid="29"><path d="M9 18l6-6-6-6" vid="30"></path></svg>
+                </div>
+            </div>
+            <div class="settings-item" vid="31">
+                <div class="item-info" vid="32">
+                    <div class="item-title" vid="33">Activity Focus</div>
+                    <div class="item-desc" vid="34">Restorative movement</div>
+                </div>
+                <div class="value-display" vid="35">
+                    Moderate
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" vid="36"><path d="M9 18l6-6-6-6" vid="37"></path></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-group" vid="38">
+        <div class="group-label" vid="39">Connected Weave</div>
+        <div class="settings-card" vid="40">
+            <div class="settings-item" vid="41">
+                <div class="item-info" vid="42">
+                    <div class="item-title" vid="43">Apple Health</div>
+                    <div class="item-desc" vid="44">Biometric sync enabled</div>
+                </div>
+                <div class="device-status" style="color: #79a37d;" vid="45">
+                    <div class="status-dot" vid="46"></div>
+                    Synced
+                </div>
+            </div>
+            <div class="settings-item" vid="47">
+                <div class="item-info" vid="48">
+                    <div class="item-title" vid="49">Oura Ring</div>
+                    <div class="item-desc" vid="50">Last seen 4m ago</div>
+                </div>
+                <div class="device-status" style="color: #79a37d;" vid="51">
+                    <div class="status-dot" vid="52"></div>
+                    Active
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-group" vid="53">
+        <div class="group-label" vid="54">Nudges &amp; Reminders</div>
+        <div class="settings-card" vid="55">
+            <div class="settings-item" vid="56">
+                <div class="item-info" vid="57">
+                    <div class="item-title" vid="58">Morning Insight</div>
+                    <div class="item-desc" vid="59">Readiness report at 7:30 AM</div>
+                </div>
+                <div class="toggle-switch on" vid="60">
+                    <div class="toggle-handle" vid="61"></div>
+                </div>
+            </div>
+            <div class="settings-item" vid="62">
+                <div class="item-info" vid="63">
+                    <div class="item-title" vid="64">Evening Wind-down</div>
+                    <div class="item-desc" vid="65">Gentle prompt before bed</div>
+                </div>
+                <div class="toggle-switch on" vid="66">
+                    <div class="toggle-handle" vid="67"></div>
+                </div>
+            </div>
+            <div class="settings-item" vid="68">
+                <div class="item-info" vid="69">
+                    <div class="item-title" vid="70">Burnout Alerts</div>
+                    <div class="item-desc" vid="71">High stress detection</div>
+                </div>
+                <div class="toggle-switch" vid="72">
+                    <div class="toggle-handle" vid="73"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav" vid="74">
+    <a href="#" class="nav-item" vid="75">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="76">
+            <circle cx="12" cy="12" r="4" vid="77"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" vid="78"></path>
+        </svg>
+        <span class="nav-label" vid="79">Today</span>
+    </a>
+    <a href="#" class="nav-item" vid="80">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="81">
+            <path d="M3 3v18h18" vid="82"></path>
+            <path d="M18 9l-5 5-4-4-5 5" vid="83"></path>
+        </svg>
+        <span class="nav-label" vid="84">Trends</span>
+    </a>
+    <a href="#" class="nav-item active" vid="85">
+        <svg class="nav-icon" viewBox="0 0 24 24" vid="86">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" vid="87"></path>
+            <circle cx="12" cy="7" r="4" vid="88"></circle>
+        </svg>
+        <span class="nav-label" vid="89">Profile</span>
+    </a>
+</nav>
+
+</body></html>
